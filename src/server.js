@@ -6,14 +6,7 @@ const { json } = require("body-parser");
 const cors = require("cors");
 
 // routes
-const {
-  // productRouter,
-  // modelRouter,
-  userRouter,
-  // personRouter,
-  // movieRouter,
-  // movieGenreRouter,
-} = require("./routes");
+const { trackRouter, userRouter, playlistRouter } = require("./routes");
 
 // app creation
 const app = express();
@@ -22,12 +15,20 @@ const app = express();
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(json());
-app.use(cors());
+app.use(
+  cors({
+    origin: config.client.url,
+    methods: ["GET", "PUT", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 200,
+  }),
+);
+
 
 // app used routes
-// app.use("/products", productRouter);
+app.use("/tracks", trackRouter);
 app.use("/users", userRouter);
-// app.use("/models", modelRouter);
+app.use("/playlists", playlistRouter);
 
 // test request to see server works properly
 app.get("/", (req, res) => {

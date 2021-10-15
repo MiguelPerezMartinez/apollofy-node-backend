@@ -9,11 +9,6 @@ async function authMiddleware(req, res, next) {
     try {
       const userClaims = await auth.verifyIdToken(token);
       console.log(userClaims);
-      // const { email, uid } = userClaims;
-      // req.user = {
-      //   email: email,
-      //   firebase_id: uid,
-      // };
       next();
     } catch (error) {
       next(error);

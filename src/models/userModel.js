@@ -42,17 +42,17 @@ const UserSchema = new Schema(
       type: Date,
       default: "",
     },
-    mySongs: [
+    myTracks: [
       {
         type: Schema.Types.ObjectId,
-        ref: "songs",
+        ref: "tracks",
       },
     ],
 
-    favSongs: [
+    favTracks: [
       {
         type: Schema.Types.ObjectId,
-        ref: "songs",
+        ref: "tracks",
       },
     ],
 
@@ -69,10 +69,11 @@ const UserSchema = new Schema(
         ref: "playlists",
       },
     ],
-    lastSongs: [
+
+    trackHistory: [
       {
         type: Schema.Types.ObjectId,
-        ref: "songs",
+        ref: "tracks",
       },
     ],
 
@@ -82,6 +83,11 @@ const UserSchema = new Schema(
         ref: "users",
       },
     ],
+
+    profileImg: {
+      type: String,
+      default: "",
+    },
 
     // genres:[{
     //     type: Schema.Types.ObjectId,
