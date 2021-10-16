@@ -11,68 +11,68 @@ trackRouter.post("/upload-track", authMiddleware, trackController.uploadTrack);
 trackRouter.patch(
   "/update-track/:id",
   authMiddleware,
-  trackController.updateTrack,
+  trackController.updateTrack
 );
 trackRouter.patch(
   "/handler-track-like/",
   authMiddleware,
-  trackController.handlerTrackLike,
+  trackController.handlerTrackLike
 );
 trackRouter.patch(
   "/increment-total-plays/:id",
   authMiddleware,
-  trackController.incrementTotalPlays,
+  trackController.incrementTotalPlays
 );
 
 //DELETE
 trackRouter.delete(
   "/delete-track/:id",
   authMiddleware,
-  trackController.deleteTrack,
+  trackController.deleteTrack
 );
 
 //GET
-trackRouter.get("/", authMiddleware, trackController.getAllTracks);
+trackRouter.get("/", trackController.getAllTracks);
 trackRouter.get("/get-track/:id", authMiddleware, trackController.getTrackById);
 trackRouter.get(
   "/get-track-by-title/:title",
   authMiddleware,
-  trackController.getTracksByTitle,
+  trackController.getTracksByTitle
 );
 trackRouter.get(
   "/get-track-by-author/:author",
   authMiddleware,
-  trackController.getTracksByAuthor,
+  trackController.getTracksByAuthor
 );
 trackRouter.get(
   "/get-track-by-album/:album",
   authMiddleware,
-  trackController.getTracksByAlbum,
+  trackController.getTracksByAlbum
 );
 trackRouter.get(
   "/get-track-by-genre/:genre",
   authMiddleware,
-  trackController.getTracksByGenre,
+  trackController.getTracksByGenre
 );
 trackRouter.get(
   "/get-track/:id/liked",
   authMiddleware,
-  trackController.isLikedByUser,
+  trackController.isLikedByUser
 );
 trackRouter.get(
   "/get-track/last-updated",
   authMiddleware,
-  trackController.isLikedByUser,
+  trackController.isLikedByUser
 );
 trackRouter.get(
   "/get-most-played",
   authMiddleware,
-  trackController.getMostPlayed,
+  trackController.getMostPlayed
 );
 trackRouter.get(
   "/get-most-liked",
   authMiddleware,
-  trackController.getMostLiked,
+  trackController.getMostLiked
 );
 
 module.exports = trackRouter;
