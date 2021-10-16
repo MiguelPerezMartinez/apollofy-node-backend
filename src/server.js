@@ -18,7 +18,7 @@ app.use(helmet());
 app.use(json());
 app.use(
   cors({
-    origin: config.client.url,
+    origin: config.db.url,
     methods: ["GET", "PUT", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 200,
