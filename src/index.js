@@ -5,7 +5,7 @@ const db = require("./models");
 const { connect } = require("./db");
 
 // connection and connection test
-connect().then(async function seed() {
+connect(process.env.MONGODB_URI).then(async function seed() {
   console.log("connection success");
   const isExist = await db.Users.find({});
   if (isExist.length != 0) {
@@ -32,5 +32,5 @@ connect().then(async function seed() {
 
 // port conenction test
 app.listen(config.app.PORT, () =>
-  console.log("server running on port " + config.app.PORT),
+  console.log("server running on port " + config.app.PORT)
 );
