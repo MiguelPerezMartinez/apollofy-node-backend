@@ -6,7 +6,7 @@ dotenv.config();
 
 //  process.env is destructuring
 const {
-  NODE_ENV = "development",
+  NODE_ENV = "production",
   MONGO_DB_URL_PRODUCTION,
   MONGO_DB_URL_DEVELOPMENT,
   MONGO_DB_URL_TEST,
