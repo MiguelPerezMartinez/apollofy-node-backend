@@ -5,7 +5,7 @@ const db = require("./models");
 const { connect } = require("./db");
 
 // connection and connection test
-connect(process.env.MONGODB_URI).then(async function seed() {
+connect(process.env.MONGO_DB_URL_PRODUCTION).then(async function seed() {
   console.log("connection success");
   const isExist = await db.Users.find({});
   if (isExist.length != 0) {
