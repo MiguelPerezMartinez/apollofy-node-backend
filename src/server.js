@@ -4,6 +4,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const { json } = require("body-parser");
 const cors = require("cors");
+const { config } = require("./config");
 
 // routes
 const { trackRouter, userRouter, playlistRouter } = require("./routes");
@@ -21,9 +22,8 @@ app.use(
     methods: ["GET", "PUT", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 200,
-  }),
+  })
 );
-
 
 // app used routes
 app.use("/tracks", trackRouter);
