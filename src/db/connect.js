@@ -4,7 +4,7 @@ const { config } = require("../config");
 
 // db connection
 function connect() {
-  return mongoose.connect(process.env.MONGO_DB_URL_PRODUCTION);
+  return mongoose.connect(config.db.url);
 }
 
 module.exports = connect;
