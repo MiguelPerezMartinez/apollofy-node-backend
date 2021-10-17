@@ -18,7 +18,7 @@ app.use(helmet());
 app.use(json());
 app.use(
   cors({
-    origin: process.env.MONGO_DB_URL_PRODUCTION,
+    origin: config.db.url,
     methods: ["GET", "PUT", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 200,
