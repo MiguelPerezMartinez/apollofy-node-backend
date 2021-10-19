@@ -19,7 +19,7 @@ app.use(json());
 app.use(
   cors({
     origin:
-      "https://616e732126d84ce7bc2f4787--eloquent-lamarr-cbb596.netlify.app/",
+      "https://616e732126d84ce7bc2f4787--eloquent-lamarr-cbb596.netlify.app",
 
     methods: ["GET", "PUT", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
