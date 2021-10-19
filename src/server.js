@@ -34,6 +34,7 @@ app.use("/playlists", playlistRouter);
 app.get("/", (req, res) => {
   res.status(200).send({
     data: "hello-world",
+    url: config.url.client,
   });
 });
 
