@@ -18,7 +18,10 @@ app.use(helmet());
 app.use(json());
 app.use(
   cors({
-    origin: [config.db.url, "https://apollofybackend.herokuapp.com"],
+    origin: [
+      config.db.url,
+      "https://616e732126d84ce7bc2f4787--eloquent-lamarr-cbb596.netlify.app/",
+    ],
     methods: ["GET", "PUT", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"],
     optionsSuccessStatus: 200,
