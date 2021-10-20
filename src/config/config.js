@@ -23,6 +23,7 @@ const {
   TOKEN_URI,
   AUTH_PROVIDER_X509_CERT_URL,
   CLIENT_X509_CERT_URL,
+  CLIENT_URL,
 } = process.env;
 
 const CONFIG = {
@@ -32,6 +33,9 @@ const CONFIG = {
     },
     db: {
       url: MONGO_DB_URL_PRODUCTION,
+    },
+    url: {
+      client: CLIENT_URL,
     },
     encrypt: {
       salt: ENCRYPTION_SALT_PRODUCTION,
