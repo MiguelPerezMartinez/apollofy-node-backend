@@ -4,7 +4,6 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 const { json } = require("body-parser");
 const cors = require("cors");
-const { config } = require("./config");
 
 // routes
 const { trackRouter, userRouter, playlistRouter } = require("./routes");
@@ -16,14 +15,7 @@ const app = express();
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(json());
-app.use(
-  cors({
-    origin: config.url.client,
-    methods: ["GET", "PUT", "POST", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    optionsSuccessStatus: 200,
-  })
-);
+app.use(cors());
 
 // app used routes
 app.use("/tracks", trackRouter);
@@ -34,7 +26,6 @@ app.use("/playlists", playlistRouter);
 app.get("/", (req, res) => {
   res.status(200).send({
     data: "hello-world",
-    url: config.url.client,
   });
 });
 

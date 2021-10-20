@@ -1,5 +1,5 @@
 // imports
-const { Tracks, Users, Playlists } = require("../models");
+const { Users, Playlists } = require("../models");
 
 // functions
 
@@ -65,7 +65,7 @@ async function updatePlaylistById(req, res) {
   }
 }
 
-async function handlerPlaylistLike(req, res) {
+async function handlePlaylistLike(req, res) {
   const { playlistId, userId } = req.body;
   let messageResponse = "";
   try {
@@ -159,6 +159,44 @@ async function deleteTrackFromPlaylist(req, res) {
   }
 }
 
+async function setPlaylistGenres(req, res) {
+  const { id } = req.params;
+  try {
+    //Collect playlist document, populate its tracks
+    //and initialize playlist genres array
+    const playlistDoc = await Playlists.findById({ _id: id }).populate(
+      "tracks",
+    );
+    const playlistTracks = playlistDoc.tracks;
+    let playlistGenres = [];
+
+    //Check if genres existed and add them
+    //to playlistGenres array if they didn't
+    for (const track of playlistTracks) {
+      let trackGenre = track.genre;
+      let genreIndexCheck = playlistGenres.indexOf(trackGenre);
+      if (genreIndexCheck === -1 && trackGenre !== "--") {
+        playlistGenres.push(trackGenre);
+      }
+    }
+
+    //Update playlist genres and playlistDoc
+    playlistDoc.genres = playlistGenres;
+    playlistDoc.save();
+
+    //Return genres found
+    return res.status(200).send({
+      message: "Genres set",
+      playlistGenres: playlistDoc.genres,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: id,
+      error: error.message,
+    });
+  }
+}
+
 //DELETE
 async function deletePlaylistById(req, res) {
   const { id } = req.params;
@@ -201,6 +239,8 @@ async function getAllPlaylists(req, res) {
   const { limit = 20 } = req.body;
   try {
     const playlists = await Playlists.find({})
+      .populate("tracks")
+      .populate("owner")
       .sort({ createdAt: -1 })
       .limit(limit);
     return res.status(200).send({
@@ -216,10 +256,13 @@ async function getAllPlaylists(req, res) {
 
 async function getPlaylistById(req, res) {
   const { id } = req.params;
+
   try {
     const foundPlaylist = await Playlists.findOne({
       _id: id,
-    });
+    })
+      .populate("owner")
+      .populate("tracks");
     return res.status(200).send({
       message: "Playlist found",
       currentPlaylist: foundPlaylist,
@@ -232,24 +275,34 @@ async function getPlaylistById(req, res) {
   }
 }
 
+// Filter function for string type filters
+function filterPlaylists(allPlaylists, stringFilter, filter) {
+  //Turn stringFilter criteria to lowercase
+  //and initialize filtered playlists
+  const lwcStringFilter = stringFilter.toLowerCase();
+  let filteredPlaylists = [];
+
+  //Check if filter is contained inside allPlaylists and
+  //adding it to filteredPlaylists
+  for (const playlist of allPlaylists) {
+    let playlistDocFilter = playlist[filter].toLowerCase();
+    if (playlistDocFilter.includes(lwcStringFilter)) {
+      filteredPlaylists.push(playlist);
+    }
+  }
+
+  //Return filtered playlists
+  return filteredPlaylists;
+}
+
 async function getPlaylistByTitle(req, res) {
   const { title } = req.params;
   try {
-    //Collect all tracks, turn title to
-    //lowercase and initialize tracks to return
-    const playlists = await Playlists.find({});
-    const lwcPlaylistTitle = title.toLowerCase();
-    let playlistsToReturn = [];
+    //Collect all playlists and filter them by title
+    const allPlaylists = await Playlists.find({});
+    const playlistsToReturn = filterPlaylists(allPlaylists, title, "title");
 
-    //Check if title is contained inside tracks
-    for (const playlist of playlists) {
-      let playlistDocTitle = playlist.title.toLowerCase();
-      if (playlistDocTitle.includes(lwcPlaylistTitle)) {
-        playlistsToReturn.push(playlist);
-      }
-    }
-
-    //Return tracks found
+    //Return found playlists
     return res.status(200).send({
       message: "Playlists found",
       playlists: playlistsToReturn,
@@ -262,9 +315,66 @@ async function getPlaylistByTitle(req, res) {
   }
 }
 
+async function getPlayListsByTrackTitle(req, res) {
+  const { title } = req.params;
+  try {
+    //Collect all playlists and populate tracks.
+    //Initialize playlists to return
+    const allPlaylists = await Playlists.find({}).populate("tracks");
+    let playlistsToReturn = [];
+
+    //Add playlists that contain the specific track
+    //to playlistsToReturn
+    for (const playlist of allPlaylists) {
+      for (const track of playlist.tracks) {
+        if (track.title === title) {
+          playlistsToReturn.push(playlist);
+          break;
+        }
+      }
+    }
+    //Return found playlists
+    return res.status(200).send({
+      message: "Found playlists",
+      playlists: playlistsToReturn,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: title,
+      error: error.message,
+    });
+  }
+}
+
+async function getPlayListsByGenre(req, res) {
+  const { genre } = req.params;
+  try {
+    //Collect all playlists and initialize playlists to return
+    const allPlaylists = await Playlists.find({});
+    let playlistsToReturn = [];
+
+    //Add playlists that contain the specific track
+    //to playlistsToReturn
+    for (const playlist of allPlaylists) {
+      if (playlist.genres.indexOf(genre) > -1) {
+        playlistsToReturn.push(playlist);
+      }
+    }
+    //Return found playlists
+    return res.status(200).send({
+      message: "Found playlists",
+      playlists: playlistsToReturn,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: genre,
+      error: error.message,
+    });
+  }
+}
+
 async function isLikedByUser(req, res) {
-  const { id: playlistId } = req.params;
-  const { userId } = req.body;
+  const { id: playlistId, userId } = req.params;
 
   try {
     const playlistDoc = await Playlists.findById(playlistId);
@@ -290,9 +400,11 @@ async function isLikedByUser(req, res) {
 
 async function getMostLiked(req, res) {
   //Receive the limitation by req.body, by default 20
-  const { limit = 14 } = req.body;
+  const { limit = 6 } = req.body;
   try {
     const playlists = await Playlists.find({})
+      .populate("tracks")
+      .populate("owner")
       .sort({ totalLikes: -1 })
       .limit(limit);
     return res.status(200).send({
@@ -307,17 +419,41 @@ async function getMostLiked(req, res) {
   }
 }
 
+async function getPlaylistGenres(req, res) {
+  const { id } = req.params;
+  try {
+    //Collect playlist document and initialize playlist genres
+    const playListDoc = await Playlists.findById({ _id: id });
+    let playlistGenres = playListDoc.genres;
+
+    //Return genres found
+    return res.status(200).send({
+      message: "Genres found",
+      playlistGenres: playlistGenres,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: id,
+      error: error.message,
+    });
+  }
+}
+
 //exports
 module.exports = {
   createPlaylist: createPlaylist,
   updatePlaylistById: updatePlaylistById,
-  handlerPlaylistLike: handlerPlaylistLike,
+  handlePlaylistLike: handlePlaylistLike,
   addTrackToPlaylist: addTrackToPlaylist,
   deleteTrackFromPlaylist: deleteTrackFromPlaylist,
+  setPlaylistGenres: setPlaylistGenres,
   deletePlaylistById: deletePlaylistById,
   getAllPlaylists: getAllPlaylists,
   getPlaylistById: getPlaylistById,
   getPlaylistByTitle: getPlaylistByTitle,
+  getPlaylistGenres: getPlaylistGenres,
+  getPlayListsByTrackTitle: getPlayListsByTrackTitle,
+  getPlayListsByGenre: getPlayListsByGenre,
   isLikedByUser: isLikedByUser,
   getMostLiked: getMostLiked,
 };

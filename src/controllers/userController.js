@@ -1,4 +1,4 @@
-const { Users } = require("../models");
+const { Users, Tracks, Playlists } = require("../models");
 
 //POST
 async function register(req, res) {
@@ -100,6 +100,7 @@ async function getById(req, res) {
   } catch (error) {
     console.log(error.message);
     return res.status(500).send({
+      data: req.params.id,
       error: error.message,
     });
   }
@@ -117,6 +118,7 @@ async function getMyTracksById(req, res) {
   } catch (error) {
     console.log(error.message);
     return res.status(500).send({
+      data: req.params.id,
       error: error.message,
     });
   }
@@ -129,22 +131,66 @@ async function getFavouriteTracksById(req, res) {
 
     return res.status(200).send({
       message: `User ${id} favTracks`,
-      favTracks: userDoc.favTracks,
+      data: userDoc.favTracks,
     });
   } catch (error) {
     console.log(error.message);
     return res.status(500).send({
+      data: req.params.id,
       error: error.message,
     });
   }
 }
+
 async function getAllMyPlaylists(req, res) {
   const { id } = req.params;
   try {
-    const userDoc = await Users.findById(id).populate("myPlaylists");
+    const userDoc = await Users.findById(id).populate({
+      path: "myPlaylists",
+      model: Playlists,
+      populate: [
+        {
+          path: "tracks",
+          model: Tracks,
+        },
+        {
+          path: "owner",
+          model: Users,
+        },
+      ],
+    });
     return res.status(200).send({
       message: `User ${id} myPlaylists`,
       myPlaylists: userDoc.myPlaylists,
+    });
+  } catch (error) {
+    return res.status(500).send({
+      data: req.params.id,
+      error: error.message,
+    });
+  }
+}
+
+async function getAllMyFavPlaylists(req, res) {
+  const { id } = req.params;
+  try {
+    const userDoc = await Users.findById(id).populate({
+      path: "favPlaylists",
+      model: Playlists,
+      populate: [
+        {
+          path: "tracks",
+          model: Tracks,
+        },
+        {
+          path: "owner",
+          model: Users,
+        },
+      ],
+    });
+    return res.status(200).send({
+      message: `User ${id} favPlaylists`,
+      favPlaylists: userDoc.favPlaylists,
     });
   } catch (error) {
     return res.status(500).send({
@@ -183,6 +229,44 @@ async function getUserByUsername(req, res) {
     });
   }
 }
+
+async function getTotalPlays(req, res) {
+  const { id } = req.params;
+  try {
+    const userDoc = await Users.findById(id).populate("myTracks");
+    const myTracks = userDoc.myTracks;
+    let totalPlays = 0;
+    myTracks.forEach((track) => {
+      totalPlays += track.totalPlays;
+    });
+    return res.status(200).send({
+      message: totalPlays,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).send({
+      error: error.message,
+    });
+  }
+}
+
+async function getTotalTracks(req, res) {
+  const { id } = req.params;
+  try {
+    const userDoc = await Users.findById(id).populate("myTracks");
+    const myTracks = userDoc.myTracks;
+    const totalTracks = myTracks.length;
+    return res.status(200).send({
+      message: totalTracks,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).send({
+      error: error.message,
+    });
+  }
+}
+
 module.exports = {
   register: register,
   updateProfile: updateById,
@@ -191,5 +275,8 @@ module.exports = {
   getMyTracksById: getMyTracksById,
   getFavouriteTracksById: getFavouriteTracksById,
   getAllMyPlaylists: getAllMyPlaylists,
+  getAllMyFavPlaylists: getAllMyFavPlaylists,
   getUserByUsername: getUserByUsername,
+  getTotalPlays: getTotalPlays,
+  getTotalTracks: getTotalTracks,
 };

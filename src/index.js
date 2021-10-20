@@ -32,5 +32,5 @@ connect().then(async function seed() {
 
 // port conenction test
 app.listen(config.app.PORT, () =>
-  console.log("server running on port " + config.app.PORT)
+  console.log("server running on port " + config.app.PORT),
 );

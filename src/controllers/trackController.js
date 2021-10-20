@@ -51,7 +51,7 @@ async function updateTrack(req, res) {
   }
 }
 
-async function handlerTrackLike(req, res) {
+async function handleTrackLike(req, res) {
   const { trackId, userId } = req.body;
   let messageResponse = "";
   try {
@@ -196,22 +196,31 @@ async function getTrackById(req, res) {
   }
 }
 
+// Filter function for string type filters
+function filterTracks(allTracks, stringFilter, filter) {
+  //Turn stringFilter criteria to lowercase
+  //and initialize filtered tracks
+  const lwcStringFilter = stringFilter.toLowerCase();
+  let filteredTracks = [];
+
+  //Check if filter is contained inside allTracks
+  //and adding it to filtered tracks
+  for (const track of allTracks) {
+    let trackDocFilter = track[filter].toLowerCase();
+    if (trackDocFilter.includes(lwcStringFilter)) {
+      filteredTracks.push(track);
+    }
+  }
+  //Return filtered tracks
+  return filteredTracks;
+}
+
 async function getTracksByTitle(req, res) {
   const { title } = req.params;
   try {
-    //Collect all tracks, turn title to
-    //lowercase and initialize tracks to return
-    const tracks = await Tracks.find({});
-    const lwcTrackTitle = title.toLowerCase();
-    let tracksToReturn = [];
-
-    //Check if title is contained inside tracks
-    for (const track of tracks) {
-      let trackDocTitle = track.title.toLowerCase();
-      if (trackDocTitle.includes(lwcTrackTitle)) {
-        tracksToReturn.push(track);
-      }
-    }
+    //Collect all tracks and filter them by title
+    const allTracks = await Tracks.find({});
+    let tracksToReturn = filterTracks(allTracks, title, "title");
 
     //Return tracks found
     return res.status(200).send({
@@ -228,20 +237,11 @@ async function getTracksByTitle(req, res) {
 
 async function getTracksByAuthor(req, res) {
   const { author } = req.params;
+  console.log(author);
   try {
-    //Collect all tracks, turn author to
-    //lowercase and initialize tracks to return
-    const tracks = await Tracks.find({});
-    const lwcTrackAuthor = author.toLowerCase();
-    let tracksToReturn = [];
-
-    //Check if author is contained inside tracks
-    for (const track of tracks) {
-      let trackDocAuthor = track.author.toLowerCase();
-      if (trackDocAuthor.includes(lwcTrackAuthor)) {
-        tracksToReturn.push(track);
-      }
-    }
+    //Collect all tracks and filter them by author
+    const allTracks = await Tracks.find({});
+    let tracksToReturn = filterTracks(allTracks, author, "author");
 
     //Return tracks found
     return res.status(200).send({
@@ -259,19 +259,9 @@ async function getTracksByAuthor(req, res) {
 async function getTracksByAlbum(req, res) {
   const { album } = req.params;
   try {
-    //Collect all tracks, turn album to
-    //lowercase and initialize tracks to return
-    const tracks = await Tracks.find({});
-    const lwcTrackAlbum = album.toLowerCase();
-    let tracksToReturn = [];
-
-    //Check if album is contained inside tracks
-    for (const track of tracks) {
-      let trackDocAlbum = track.album.toLowerCase();
-      if (trackDocAlbum.includes(lwcTrackAlbum)) {
-        tracksToReturn.push(track);
-      }
-    }
+    //Collect all tracks and filter them by album
+    const allTracks = await Tracks.find({});
+    let tracksToReturn = filterTracks(allTracks, album, "album");
 
     //Return tracks found
     return res.status(200).send({
@@ -290,19 +280,9 @@ async function getTracksByReleaseYear(req, res) {}
 async function getTracksByGenre(req, res) {
   const { genre } = req.params;
   try {
-    //Collect all tracks, turn genre to
-    //lowercase and initialize tracks to return
-    const tracks = await Tracks.find({});
-    const lwcTrackGenre = genre.toLowerCase();
-    let tracksToReturn = [];
-
-    //Check if genre is contained inside tracks
-    for (const track of tracks) {
-      let trackDocGenre = track.genre.toLowerCase();
-      if (trackDocGenre.includes(lwcTrackGenre)) {
-        tracksToReturn.push(track);
-      }
-    }
+    //Collect all tracks and filter them by genre
+    const allTracks = await Tracks.find({});
+    let tracksToReturn = filterTracks(allTracks, genre, "genre");
 
     //Return tracks found
     return res.status(200).send({
@@ -381,7 +361,7 @@ async function getMostLiked(req, res) {
 module.exports = {
   uploadTrack: uploadTrack,
   updateTrack: updateTrack,
-  handlerTrackLike: handlerTrackLike,
+  handleTrackLike: handleTrackLike,
   incrementTotalPlays: incrementTotalPlays,
   deleteTrack: deleteTrack,
   getAllTracks: getAllTracks,
